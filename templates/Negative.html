@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Negative Links</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+        h1{
+            margin: 10px;
+        }
+        table {
+            margin-top: 20px;
+        }
+        th, td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Aerochat Dashboard</a>
+            
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/positive">Postive Links</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/negative">Negative Links</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/neutral">Neutral Links</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/keyword_list">Keywords List</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <h1>List of Negative URLs</h1>
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Link</th>
+                <th>Created Date</th>
+                <th>Is Content Match</th>
+                <th>Is Title Match</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for keyword in keywords %}
+            <tr>
+                <td>{{ keyword.id }}</td>
+                <td><a href={{ keyword.link }}>{{ keyword.link }}</a></td>
+                <td>{{ keyword.created_date }}</td>
+                <td>{{ keyword.is_content_match }}</td>
+                <td>{{ keyword.is_title_match }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="text-center">No Links available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

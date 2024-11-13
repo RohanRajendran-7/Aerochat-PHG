@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>List Of Keywords</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding: 20px;
+        }
+        h1{
+            margin: 10px;
+        }
+        table {
+            margin-top: 20px;
+        }
+        th, td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">Aerochat Dashboard</a>
+            
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/positive">Postive Links</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/negative">Negative Links</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/neutral">Neutral Links</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/neutral">Keywords List</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <div id="toast-container" class="position-fixed top-0 end-0 p-3" style="z-index: 1050;"></div><br>
+    <button class="btn btn-primary" data-toggle="modal" data-target="#createKeywordModal">Create New Keyword</button>
+    <div class="container">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Keyword</th>
+                    <th>Created Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for keyword in keywords %}
+                <tr>
+                    <td>{{ keyword.id }}</td>
+                    <td>{{ keyword.keyword }}</td>
+                    <td>{{ keyword.created_at}}</td>
+
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center">No Keywords available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Modal for Creating New Keyword -->
+    <div class="modal fade" id="createKeywordModal" tabindex="-1" role="dialog" aria-labelledby="createKeywordModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createKeywordModalLabel">Create New Keyword</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <!-- Form for Creating or Editing Keyword -->
+                <form id="keyword-form" method="POST" action="/create_keyword" onsubmit="event.preventDefault(); submitKeywordForm()">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="keyword">Keyword</label>
+                            <input type="text" class="form-control" id="keyword" name="keyword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="created_at">Created Date</label>
+                            <input type="datetime-local" class="form-control" id="created_at" name="created_at" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Create Keyword</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handle the form submission for creating/updating a keyword
+        function submitKeywordForm() {
+            const form = document.getElementById('keyword-form');
+            const formData = new FormData(form);
+
+            fetch('/add_keywords', { 
+                method: 'POST',
+                body: formData
+            })
+            .then(
+                response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    showToast('Success', data.message, 'bg-success');
+                    setTimeout(() => location.reload(), 2000);
+                } else {
+                    showToast('Error', data.message, 'bg-danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Error', 'An unexpected error occurred.', 'bg-danger');
+            });
+        }
+
+        // Toast function
+        function showToast(title, message, type) {
+            const toastContainer = document.getElementById('toast-container');
+            const toastElement = document.createElement('div');
+            toastElement.classList.add('toast', type);
+            toastElement.classList.add('show');
+            toastElement.setAttribute('role', 'alert');
+            toastElement.setAttribute('aria-live', 'assertive');
+            toastElement.setAttribute('aria-atomic', 'true');
+            toastElement.innerHTML = `
+                <div class="toast-header">
+                    <strong class="me-auto">${title}</strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">${message}</div>
+            `;
+            toastContainer.appendChild(toastElement);
+
+            // Automatically remove the toast after 3 seconds
+            setTimeout(() => {
+                toastElement.classList.remove('show');
+                toastContainer.removeChild(toastElement);
+            }, 3000);
+        }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>
