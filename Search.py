@@ -148,3 +148,5 @@ def search_past_24_hours_with_selenium(keywords):
         print("-" * 40)
     driver.quit()
     return keyword_matches
+
+search_past_24_hours_with_selenium("chen zhi")
