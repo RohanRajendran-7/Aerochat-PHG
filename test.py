@@ -244,7 +244,7 @@ def cronUpdate():
     try:
         for keyword in keywords_list:
             keywords_list_latest.append(str(keyword.keywords))
-            final_result = search_past_24_hours_with_selenium(["chen zhi cambodia"])
+            final_result = search_past_24_hours_with_selenium(str(keyword.keywords))
             for keyword_entry in final_result:
                 keyword = keyword_entry['keyword']
                 results = keyword_entry['results']
