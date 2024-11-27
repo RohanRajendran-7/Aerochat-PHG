@@ -1,10 +1,12 @@
 from datetime import datetime
 from flask import Flask, jsonify, request, render_template
 from flask_sqlalchemy import SQLAlchemy
+import pymysql
 from Search import search_past_24_hours_with_selenium
 
 app = Flask(__name__)
 
+pymysql.install_as_MySQLdb()
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://rohan_aerochat:rohan_aerochat@db4free.net:3306/aerochat_test'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  
