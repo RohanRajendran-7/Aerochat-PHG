@@ -48,7 +48,7 @@ def search_past_24_hours_with_selenium(keywords):
     driver = webdriver.Chrome(options=options)
 
     keyword_matches = {keyword: {"total": 0, "matches": 0} for keyword in keywords}
-
+    all_results = []
     # Iterate over each keyword
     for query in keywords:
         base_url = f"https://www.google.com/search?q={query}&tbs=qdr:d"  # Time filter for past 24 hours
@@ -129,6 +129,20 @@ def search_past_24_hours_with_selenium(keywords):
             delay = random.randint(2, 5)
             print(f"Sleeping for {delay} seconds...")
             time.sleep(delay)
+            all_results.append({
+                "keyword": query,
+                "results": [
+                    {
+                        "url": result["url"],
+                        "title": result["title"],
+                        "is_title_match": result["matches"]["is_title_match"],
+                        "is_content_match": result["matches"]["is_content_match"],
+                        "match_type": "title_match" if result["matches"]["is_title_match"] else "content_match" if result["matches"]["is_content_match"] else "none"
+                    }
+                    for result in results
+                ]
+            })
+
 
         # Output collected results for the current keyword
         print(f"\nCollected Results for keyword: {query}")
@@ -147,4 +161,6 @@ def search_past_24_hours_with_selenium(keywords):
         print(f"Matching Results: {match_data['matches']}")
         print("-" * 40)
     driver.quit()
-    return keyword_matches
+    print(all_results)
+    return all_results
+ 

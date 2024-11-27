@@ -6,7 +6,7 @@ from Search import search_past_24_hours_with_selenium
 app = Flask(__name__)
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root@localhost/test'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://rohan_aerochat:rohan_aerochat@db4free.net:3306/aerochat_test'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  
 db = SQLAlchemy(app)
 
@@ -113,7 +113,7 @@ def GetKeywordList():
             print(results)
             return render_template('keywords.html', keywords = results)
         else:
-            return "No keywords found in the database.", 404
+            return render_template('keywords.html', keywords = results)
 
     except Exception as e:
         return f"An error occurred: {str(e)}", 500
@@ -233,6 +233,7 @@ def updateSentiment():
     except Exception as e :
         db.session.rollback()
         print(f"Error updating sentiment: {e}")
+        return jsonify({'status': 'error', 'message': f'An error occurred: {str(e)}'}), 500
     finally:
         db.session.remove()
 
@@ -240,10 +241,42 @@ def updateSentiment():
 def cronUpdate():
     keywords_list_latest = []
     keywords_list = Keywords.query.all()
-    for keyword in keywords_list:
-        keywords_list_latest.append(str(keyword.keywords))
-    final_result = search_past_24_hours_with_selenium(["chen zhi cambodia"])
-    return final_result
+    try:
+        for keyword in keywords_list:
+            keywords_list_latest.append(str(keyword.keywords))
+            final_result = search_past_24_hours_with_selenium(["chen zhi cambodia"])
+            for keyword_entry in final_result:
+                keyword = keyword_entry['keyword']
+                results = keyword_entry['results']
+
+                # Iterate through the results for each keyword
+                for result in results:
+                    url = result['url']
+                    title = result['title']
+                    is_title_match = result['is_title_match']
+                    is_content_match = result['is_content_match']
+                    match_type = result['match_type']
+                    existing_result = Results.query.filter_by(link=url).first()
+                    if not existing_result:
+                        # If not found, insert the result into the Results table
+                        new_result = Results(
+                            link=url,
+                            created_date=datetime.utcnow(),
+                            is_content_match=1 if is_content_match else 0,
+                            is_title_match=1 if is_title_match else 0,
+                            is_complete=0,
+                            sentiment_id=None
+                        )
+                        # Add to the session and commit
+                        db.session.add(new_result)
+                        db.session.commit()
+        return jsonify({'status': 'success', 'message': 'Cron job completed and results updated.'})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error in Cron: {e}")
+        return jsonify({'status': 'error', 'message': f'An error occurred: {str(e)}'}), 500
+    finally:
+        db.session.remove()
     
 if __name__ == '__main__':
     app.run(debug=True)
