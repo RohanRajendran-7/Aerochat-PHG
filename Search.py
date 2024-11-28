@@ -6,6 +6,8 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import random
 
+import urllib
+
 # def calculate_partial_match_percentage(keyword, text):
 #     """
 #     This function calculates the partial match percentage of the keyword in the text.
@@ -28,15 +30,9 @@ import random
 #     return match_percentage
 
 def calculate_partial_match(keyword, text):
-    """
-    This function checks if any part of the keyword appears in the text.
-    It returns "Yes" if there's a match, otherwise "No".
-    """
-    # Convert the keyword and text to lowercase for case-insensitive comparison
     keyword = keyword.lower()
     text = text.lower()
 
-    # Check if the keyword is found in the text
     if keyword in text:
         return "Yes"
     else:
@@ -51,7 +47,9 @@ def search_past_24_hours_with_selenium(keywords):
     all_results = []
     # Iterate over each keyword
     for query in keywords:
-        base_url = f"https://www.google.com/search?q={query}&tbs=qdr:d"  # Time filter for past 24 hours
+        keyword = f'"{query}"' 
+        encoded_query = urllib.parse.quote(keyword)
+        base_url = f"https://www.google.com/search?q={encoded_query}&tbs=qdr:d"
         page_num = 0
         results = []
 
